@@ -77,8 +77,8 @@ def create_model(x_shape_1, x_shape_2, y_shape_1):
     model.compile(loss='categorical_crossentropy', optimizer='adam')
     return model
 
-def train(model, server_name, X, y, training_message):
+def train(model, server_name, X, y):
     filepath = "Models/{}.hdf5".format(server_name)
     checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
     desired_callbacks = [checkpoint]
-    model.fit(X, y, epochs=4, batch_size=256, callbacks=desired_callbacks)
+    model.fit(X, y, epochs=10, batch_size=256, callbacks=desired_callbacks)
