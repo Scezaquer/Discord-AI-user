@@ -133,10 +133,10 @@ class AverageUser(discord.Client):
 
         else:
             #If a random message has been sent, there is a random chance that the bot will respond to it
+            files = os.listdir("Models")
+            if "{}.json".format(message.guild) not in files or "{}.hdf5".format(message.guild) not in files:
+                return
             if jsons[message.guild.name]["message_proba"] > random.random():
-                files = os.listdir("Models")
-                if "{}.json".format(message.guild) not in files or "{}.hdf5".format(message.guild) not in files:
-                    return
                 seed = ""
                 async for msg in message.channel.history():
                     if msg.content != '':
