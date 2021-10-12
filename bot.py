@@ -21,9 +21,7 @@ class AverageUser(discord.Client):
         for guild in self.guilds:
             print("Connected to : {}".format(guild))
 
-            files = os.listdir("Models")
-            if "{}.json".format(guild) not in files or "{}.hdf5".format(guild) not in files:
-                #If no model has been created for a server yet
+            if not model_for(guild.name):
                 print("No model found for {}".format(guild))
                 continue
             
@@ -36,80 +34,47 @@ class AverageUser(discord.Client):
             
         print("finished loading")
     
+
+
     async def on_message(self, message):
         if message.author == self.user:
             return
         
-        
         message_content = message.content.split(" ")
 
+
         if message_content[0] == "|learn":
-            #Command that creates a new network for the server and trains it on (number of channels in the server * argument) messages
-
-            #TODO: Ajouter un caractere de fin de message
-
-            #Goes through the n last messages in every channel in the server, n beng the argument specified in the command
-            embed = discord.Embed(description = "Scraping channels...")
-            await message.channel.send(embed=embed)
-
-            data = ""
-
-            for channel in message.guild.text_channels:
-                async for msg in channel.history(limit = int(message_content[1])):
-                    if msg.content != '':
-                        data += "{}£\n".format(msg.content)
-            
-            embed = discord.Embed(description = "Preprocessing data...")
-            await message.channel.send(embed=embed)
-
-            #Makes the data usable by a neural network
-            X, y, input_len, vocab_len, seq_length, n_patterns, num_to_char, char_to_num = preprocess_data(data)
-
-            #Saves important values for generating text
-            saving_json = {"num_to_chars" : num_to_char,
-                            "char_to_nums" : char_to_num,
-                            "message_proba" : 0.1,
-                            "vocab_len" : vocab_len}
-            with open('Models/{}.json'.format(message.guild), 'w') as f:
-                json.dump(saving_json, f)
-
-            embed = discord.Embed(description = "Training Model... This might be very long")
-            await message.channel.send(embed=embed)
-
-            #Trains the model
-            model = create_model(X.shape[1], X.shape[2], y.shape[1])
-            train(model, message.guild, X, y)
-
-            #Adds the model to the list
-            jsons[message.guild]=saving_json
-            models[message.guild]=model
-
-            embed = discord.Embed(description = "Finished training")
-            await message.channel.send(embed=embed)
+            learn(message, int(message_content[1]))
         
+
+
         elif message_content[0] == "|set_proba":
 
-            files = os.listdir("Models")
-            if "{}.json".format(message.guild) not in files or "{}.hdf5".format(message.guild) not in files:
+            if not model_for(message.guild.name):
                 embed = discord.Embed(description = "You must first create a model")
                 await message.channel.send(embed=embed)
                 return
 
             jsons[message.guild.name]["message_proba"] = float(message_content[1])
+
             with open('Models/{}.json'.format(message.guild), 'w') as f:
                 json.dump(jsons[message.guild.name], f)
+
             embed = discord.Embed(description = "Probability of sending a message changed to {}%".format(jsons[message.guild.name]["message_proba"]*100))
             await message.channel.send(embed=embed)
         
+
+
         elif message_content[0] == "|get_proba":
-            files = os.listdir("Models")
-            if "{}.json".format(message.guild) not in files or "{}.hdf5".format(message.guild) not in files:
+            if not model_for(message.guild.name):
                 embed = discord.Embed(description = "You must first create a model")
                 await message.channel.send(embed=embed)
                 return
 
             embed = discord.Embed(description = "Probability of sending a message is {}%".format(jsons[message.guild.name]["message_proba"]*100))
             await message.channel.send(embed=embed)
+
+
 
         elif message_content[0] == "|help":
             title = "Average discord user manual"
@@ -130,6 +95,8 @@ class AverageUser(discord.Client):
                             This bot was made by Aurélien Bück-Kaeffer"""
             embed = discord.Embed(title=title, description=description)
             await message.channel.send(embed=embed)
+
+
 
         else:
             #If a random message has been sent, there is a random chance that the bot will respond to it
@@ -167,6 +134,55 @@ class AverageUser(discord.Client):
                 
                 await message.channel.send(content=generated_text)
 
+
+async def learn(message, number):
+    #Command that creates a new network for the server and trains it on (number of channels in the server * argument) messages
+
+    #Goes through the n last messages in every channel in the server, n beng the argument specified in the command
+    embed = discord.Embed(description = "Scraping channels...")
+    await message.channel.send(embed=embed)
+
+    data = ""
+
+    for channel in message.guild.text_channels:
+        async for msg in channel.history(limit = number):
+            if msg.content != '':
+                data += "{}£\n".format(msg.content)
+            
+    embed = discord.Embed(description = "Preprocessing data...")
+    await message.channel.send(embed=embed)
+
+    #Makes the data usable by a neural network
+    X, y, input_len, vocab_len, seq_length, n_patterns, num_to_char, char_to_num = preprocess_data(data)
+
+    #Saves important values for generating text
+    saving_json = {"num_to_chars" : num_to_char,
+                    "char_to_nums" : char_to_num,
+                    "message_proba" : 0.1,
+                    "vocab_len" : vocab_len}
+    with open('Models/{}.json'.format(message.guild), 'w') as f:
+        json.dump(saving_json, f)
+
+    embed = discord.Embed(description = "Training Model... This might be very long")
+    await message.channel.send(embed=embed)
+
+    #Trains the model
+    model = create_model(X.shape[1], X.shape[2], y.shape[1])
+    train(model, message.guild, X, y)
+
+    #Adds the model to the list
+    jsons[message.guild]=saving_json
+    models[message.guild]=model
+
+    embed = discord.Embed(description = "Finished training")
+    await message.channel.send(embed=embed)
+
+def model_for(server):
+    files = os.listdir("Models")
+    if "{}.json".format(server) not in files or "{}.hdf5".format(server) not in files:
+        #If no model has been created for a server yet
+        return False
+    return True
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 client = AverageUser()
