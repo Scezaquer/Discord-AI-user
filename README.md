@@ -1,4 +1,4 @@
-# Discord-AI-user
+# The Average Discord User
 This is the code for a discord bot that uses the messages sent on a discord server to train a natural language processing AI, which will then send messages as well imitating what it has seen, becoming the "average discord user" of that server.
 
 This project uses the discord, keras, nltk and numpy libraries.
