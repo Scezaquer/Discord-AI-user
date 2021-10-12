@@ -1,6 +1,6 @@
 __author__ = "Aurélien Bück-Kaeffer"
-__version__ = "0.1"
-__date__ = "10-10-2021"
+__version__ = "1.1"
+__date__ = "12-10-2021"
 
 #Credit to https://stackabuse.com/text-generation-with-python-and-tensorflow-keras/ for most of this code
 
@@ -16,6 +16,7 @@ from keras.callbacks import ModelCheckpoint
 def tokenize_words(input):
     # lowercase everything to standardize it
     input = input.lower()
+    input = input.replace("£", "A")
 
     # instantiate the tokenizer
     tokenizer = RegexpTokenizer(r'\w+')
@@ -26,7 +27,9 @@ def tokenize_words(input):
     return " ".join(tokens)
 
 def preprocess_data(data):
+    #print(data)
     processed_inputs = tokenize_words(data)
+    #processed_inputs = data
     chars = sorted(list(set(processed_inputs)))
     char_to_num = dict((c, i) for i, c in enumerate(chars))
     num_to_char = dict((i, c) for i, c in enumerate(chars))

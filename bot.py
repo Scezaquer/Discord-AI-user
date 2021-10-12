@@ -1,6 +1,6 @@
 __author__ = "Aurélien Bück-Kaeffer"
-__version__ = "1.0"
-__date__ = "11-10-2021"
+__version__ = "1.1"
+__date__ = "12-10-2021"
 # bot.py
 
 import os
@@ -47,6 +47,7 @@ class AverageUser(discord.Client):
         if message_content[0] == "|learn":
             #Command that creates a new network for the server and trains it on (number of channels in the server * argument) messages
 
+            #TODO: Ajouter un caractere de fin de message
 
             #Goes through the n last messages in every channel in the server, n beng the argument specified in the command
             embed = discord.Embed(description = "Scraping channels...")
@@ -57,7 +58,7 @@ class AverageUser(discord.Client):
             for channel in message.guild.text_channels:
                 async for msg in channel.history(limit = int(message_content[1])):
                     if msg.content != '':
-                        data += "{}:\n{}\n\n".format(msg.author.name, msg.content)
+                        data += "{}£\n".format(msg.content)
             
             embed = discord.Embed(description = "Preprocessing data...")
             await message.channel.send(embed=embed)
@@ -140,7 +141,7 @@ class AverageUser(discord.Client):
                 seed = ""
                 async for msg in message.channel.history():
                     if msg.content != '':
-                        seed += "{}:\n{}\n\n".format(msg.author.name, msg.content)
+                        seed += "{}£\n".format(msg.content)
                         seed = tokenize_words(seed)
                         if len(seed)>=100: break
                 
@@ -151,7 +152,7 @@ class AverageUser(discord.Client):
 
                 generated_text = ""
 
-                for i in range(100):
+                for i in range(200):
                     x = numpy.reshape(pattern, (1, len(pattern), 1))
                     x = x / float(jsons[message.guild.name]["vocab_len"])
                     prediction = models[message.guild.name].predict(x, verbose=0)
@@ -163,6 +164,7 @@ class AverageUser(discord.Client):
 
                     pattern.append(index)
                     pattern = pattern[1:len(pattern)]
+                    if result == "A": break
                 
                 await message.channel.send(content=generated_text)
 
