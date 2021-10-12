@@ -9,6 +9,7 @@ To run this you need to add a .env file containing the following text in the mai
 DISCORD_TOKEN=your_bot's_token_here
 ```
 
+# Commands
 This bot has 4 commands:
 
 `|learn [number_of_messages]` : The bot will scrape the server, getting the [number_of_messages] last messages in EACH channel as training data.
@@ -24,7 +25,7 @@ This bot has 4 commands:
                             
 `|help` : Displays these informations about the commands
 
-
+# Files
 There are two source files in this project:
 
 bot.py, which takes care of all the interfacing with the discord API. This is the file to start to launch the bot.
@@ -34,7 +35,7 @@ neural_network.py, which contains all the functions related to the actual neural
 When training, the neural network performs 10 epochs. If interrupted and at least 1 epoch has been completed, the best version of the model will be saved and usable upon restart of the bot.
 
 
-HOW TO USE:
+# How to use
 
 -Create a discord bot
 
