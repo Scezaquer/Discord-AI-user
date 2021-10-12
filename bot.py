@@ -5,7 +5,6 @@ __date__ = "12-10-2021"
 
 import os
 import discord
-import pandas as pd
 from neural_network import *
 import json
 import random

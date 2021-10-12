@@ -5,7 +5,6 @@ __date__ = "12-10-2021"
 #Credit to https://stackabuse.com/text-generation-with-python-and-tensorflow-keras/ for most of this code
 
 import numpy
-import sys
 from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
 from keras.models import Sequential, load_model
