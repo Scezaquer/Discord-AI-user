@@ -8,6 +8,7 @@ import discord
 from neural_network import *
 import json
 import random
+from dotenv import load_dotenv
 
 models = {}
 jsons = {}
@@ -184,6 +185,7 @@ def model_for(server):
         return False
     return True
 
+load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 client = AverageUser()
 
