@@ -176,7 +176,7 @@ async def learn(message, number):
     models[message.guild]=model
 
     embed = discord.Embed(description = "Finished training")
-    await message.channel.send(embed=embed)
+    await message.channel.send(content=)
 
 def model_for(server):
     files = os.listdir("Models")
